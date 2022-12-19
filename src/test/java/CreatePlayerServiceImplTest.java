@@ -10,12 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CreatePlayerServiceImplTest {
 
+    //if you put @MockBean, you will mock the service, but here we use real service
     private CreatePlayerServiceImpl createPlayerService;//inside it, we dont have any dependency
 
-    @BeforeEach
+
+    @BeforeEach//basic value to complete test
     public void setUp(){
         createPlayerService = new CreatePlayerServiceImpl();
     }
+
 
 
     //best case
