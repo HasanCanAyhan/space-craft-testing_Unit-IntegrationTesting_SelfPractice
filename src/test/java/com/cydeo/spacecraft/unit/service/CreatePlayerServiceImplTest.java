@@ -25,6 +25,33 @@ public class CreatePlayerServiceImplTest {
 
     //best case
     @Test
+    public void should_create_player_with_high_speed_boost_type_and_level_easy(){
+
+        //given-preparation
+        CreateGameDTO createGameDTO = new CreateGameDTO();
+        createGameDTO.setBoost(Boost.HIGH_SPEED);
+        createGameDTO.setLevel(Level.EASY);
+        createGameDTO.setUsername("username");
+
+        //when
+
+        Player player = createPlayerService.createPlayer(createGameDTO);
+
+
+        //then
+        assertEquals(player.getHealth(),2000);
+        assertEquals(player.getArmor(),7);
+        assertEquals(player.getShootPower(),5010);
+
+
+
+    }
+
+
+    /*
+
+    //best case
+    @Test
     public void should_create_player_with_big_bomb_boost_type_and_level_easy(){
 
         //given-preparation
@@ -46,6 +73,7 @@ public class CreatePlayerServiceImplTest {
 
 
     }
+
 
 
     @Test
@@ -120,6 +148,10 @@ public class CreatePlayerServiceImplTest {
 
 
     }
+
+
+     */
+
 
 
 }
