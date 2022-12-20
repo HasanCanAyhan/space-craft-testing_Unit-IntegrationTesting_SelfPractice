@@ -2,6 +2,7 @@ package com.cydeo.spacecraft.integration.controller;
 
 import com.cydeo.spacecraft.dto.CreateHitDTO;
 import com.cydeo.spacecraft.entity.Game;
+import com.cydeo.spacecraft.entity.Player;
 import com.cydeo.spacecraft.entity.Target;
 import com.cydeo.spacecraft.enumtype.AttackType;
 import com.cydeo.spacecraft.enumtype.Boost;
@@ -119,6 +120,48 @@ public class GameControllerIT {
         if (targetHealth >= 0){
             Assertions.fail();
         }
+
+    }
+
+
+    //player health 10, target to player attack then game should be end
+    @Test
+    @Sql(scripts = "/sql/hit_and_player_lose.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/remove_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void should_player_lose_when_attack_type_is_target_to_player() throws Exception {
+
+        CreateHitRequest createHitRequest = new CreateHitRequest();
+        createHitRequest.setAttackType(AttackType.TARGET_TO_PLAYER);
+        createHitRequest.setGameId(1L);
+
+        //make a http request to specific
+        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/api/v1/game/createHit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(createHitRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.responseMessage").value("SUCCESS"))
+                .andExpect(jsonPath("$.isWin").value(false))
+                .andExpect(jsonPath("$.isEnded").value(true))
+                .andReturn();
+
+
+        String json = result.getResponse().getContentAsString();
+        System.out.println(json);
+        CreateHitResponse createHitResponse = objectMapper.readValue(json,CreateHitResponse.class);
+
+        //checking if game is really exist in the DB
+        Game game = gameRepository.findById(createHitResponse.getGameId()).orElseThrow();
+
+        assertEquals(game.getIsEnded(),true);
+        assertEquals(game.getIsWin(),false);
+
+        Player player = game.getPlayer();
+        if (player.getHealth() >= 0){
+            Assertions.fail();
+        }
+
+        assertEquals(player.getHealth(), -99);
+
 
     }
 
