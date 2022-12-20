@@ -1,15 +1,19 @@
 package com.cydeo.spacecraft.integration.controller;
 
+import com.cydeo.spacecraft.dto.CreateHitDTO;
 import com.cydeo.spacecraft.entity.Game;
+import com.cydeo.spacecraft.entity.Target;
 import com.cydeo.spacecraft.enumtype.AttackType;
 import com.cydeo.spacecraft.enumtype.Boost;
 import com.cydeo.spacecraft.enumtype.Level;
 import com.cydeo.spacecraft.model.request.CreateGameRequest;
 import com.cydeo.spacecraft.model.request.CreateHitRequest;
 import com.cydeo.spacecraft.model.response.CreateGameResponse;
+import com.cydeo.spacecraft.model.response.CreateHitResponse;
 import com.cydeo.spacecraft.repository.GameRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,12 +25,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.transaction.Transactional;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 public class GameControllerIT {
 
     @Autowired
@@ -87,8 +95,30 @@ public class GameControllerIT {
                 .content(objectMapper.writeValueAsBytes(createHitRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.responseMessage").value("SUCCESS"))
+                .andExpect(jsonPath("$.isWin").value(true))
+                .andExpect(jsonPath("$.isEnded").value(true))
                 .andReturn();
 
+
+        String json = result.getResponse().getContentAsString();
+        System.out.println(json);
+        CreateHitResponse createHitResponse = objectMapper.readValue(json,CreateHitResponse.class);
+
+        //checking if game is really exist in the DB
+        Game game = gameRepository.findById(createHitResponse.getGameId()).orElseThrow();
+
+        assertEquals(game.getIsEnded(),true);
+        assertEquals(game.getIsWin(),true);
+
+        Set<Target> targetSet = game.getTargets();
+        Target target = targetSet.stream().findAny().get();//target size 1
+        //if we want to access target object, we should put @Transactional bcs inside the game class we have join table which target-SET
+
+        int targetHealth = target.getHealth();
+        //target's health need to be less than zero, bcs player hit the target
+        if (targetHealth >= 0){
+            Assertions.fail();
+        }
 
     }
 
