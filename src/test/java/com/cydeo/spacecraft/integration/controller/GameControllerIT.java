@@ -30,6 +30,7 @@ import javax.transaction.Transactional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -160,6 +161,9 @@ public class GameControllerIT {
             Assertions.fail();
         }
 
+
+
+        assertTrue(player.getHealth() < 0);
         assertEquals(player.getHealth(), -99);
 
 
