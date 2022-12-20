@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -192,6 +194,29 @@ public class CreateHitServiceImplTest {
         //then
         Player actualGamePlayer = actualGame.getPlayer();
         assertEquals(actualGamePlayer.getHealth(), 150);
+    }
+
+
+    @Test
+    public void should_throw_exception_when_game_not_found(){
+
+        //given
+        CreateHitDTO createHitDTO = new CreateHitDTO();
+        createHitDTO.setAttackType(AttackType.TARGET_TO_PLAYER);
+        //createHitDTO.setGameId(1L);
+
+        Game game = new Game();
+
+        //when
+
+        when(gameRepository.findById(game.getId())).thenThrow(new RuntimeException("Game Not Found"));
+
+        //then
+        RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> createHitService.createHit(createHitDTO));
+
+        assertEquals(runtimeException.getMessage(),"Game Not Found");
+
+
     }
 
 }

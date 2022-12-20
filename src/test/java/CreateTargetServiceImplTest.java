@@ -33,8 +33,6 @@ public class CreateTargetServiceImplTest {
         assertEquals(target.getArmor(), 7);
         assertEquals(target.getShootPower(), 10);
 
-
-
     }
 
 

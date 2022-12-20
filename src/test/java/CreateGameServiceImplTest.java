@@ -64,14 +64,10 @@ public class CreateGameServiceImplTest {
         when(createTargetService.createTargets(createGameDTO.getLevel())).thenReturn(targetSet);
         when(gameRepository.save(any())).thenReturn(game);
 
-
-
         Long gameId = createGameService.createGame(createGameDTO);
-
 
         //then
         assertEquals(gameId,1l);
-
 
     }
 
